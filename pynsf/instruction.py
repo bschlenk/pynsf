@@ -1,7 +1,7 @@
 import struct
 
 class Instruction(object):
-
+    """Base class for all 6502 instructions"""
     def __init__(self, instruction):
         self.opcode = instruction >> 6 & 0xFF
         try:
@@ -18,7 +18,6 @@ class Instruction(object):
 
 class ADC(Instruction):
     """Add Memory to Accumulator with Carry"""
-
     def __call__(self, core):
         arg = self.get_arg(core)
         core.acc = arg + core.acc + core.status.c
@@ -385,7 +384,7 @@ class TAY(Instruction):
 class TSX(Instruction):
     """TSX Transfer stack pointer to index X"""
     def __call__(self, core):
-        core.x = len(core.stack)
+        core.x = core.stack.sp
 
 
 # TODO: all transfer functions should affect the S and Z status flags
@@ -396,11 +395,10 @@ class TXA(Instruction):
         core.acc = core.x
 
 
-# TODO: allow this to work
 class TXS(Instruction):
     """TXS Transfer index X to stack pointer"""
     def __call__(self, core):
-        pass
+        core.stack.sp = core.x
 
 
 class TYA(Instruction):
