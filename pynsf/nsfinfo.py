@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import sys, os
 import struct
-import argparse
 
 
 class NSFFileError(Exception):
@@ -24,8 +23,7 @@ class NSFFile(object):
 
     SOUND_CHIPS = [SC_VRCVI, SC_VRCVII, SC_FDS_SOUND, SC_MMC5_AUDIO, SC_NAMCO_106, SC_SUNSOFT_FME_07]
 
-
-    _struct_format = '>5scccHHH32s32s32sH8sHcc4s'
+    _struct_format = '<5scccHHH32s32s32sH8sHcc4s'
     _struct_len = struct.calcsize(_struct_format)
     _nsf_magic = 'NESM\x1A'
 
@@ -99,6 +97,7 @@ class NSFFile(object):
 
         
         
-nsffile = NSFFile(sys.argv[1])
-nsffile.print_info()
+if __name__ == '__main__':
+    nsffile = NSFFile(sys.argv[1])
+    nsffile.print_info()
 
