@@ -27,14 +27,6 @@ class Core6502(object):
     
     def set_status_from_value(self, valNew, valOrig, update_overflow=True):
         max_num = 0xFF
-        # decimal mode enabled
-        if self.status.d:
-            other = valNew - valOrig
-            other_hex = hex(other)[:2]
-            value_hex = hex(valOrig)[:2]
-            value = math.copysign(int(other_hex), other) + int(value_hex)
-            max_num = 99
-
         self.status.s = False
 
         # subtraction performed
@@ -57,10 +49,6 @@ class Core6502(object):
                     self.status.v = False
 
         self.status.z = not value
-
-        if self.status.d:
-            return int(str(valNew), 16)
-        else:
-            return valNew
+        return valNew
 
 
