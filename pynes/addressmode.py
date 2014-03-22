@@ -7,18 +7,16 @@ class BaseMode1(object):
 
 class BaseMode2(object):
     """contains routines to parse 2 byte opcodes"""
-
     _struct_fmt = '<BB'
     _struct_len = struct.calcsize(_struct_fmt)
     num_bytes = 2
 
-    def parse_args(self, opcode):
-        return struct.unpack(self._struct_fmt, opcode[:self._struct_len])
+    def parse_args(self):
+        return struct.unpack(self._struct_fmt, self.core.memory_str[self.core.pc:self.core.pc+self._struct_len])
 
 
 class BaseMode3(BaseMode2):
     """contains routines to parse 3 byte opcodes"""
-
     _struct_fmt = '<BH'
     _struct_len = struct.calcsize(_struct_fmt)
     num_bytes = 3
@@ -33,9 +31,10 @@ class Immediate(BaseMode2):
     In this mode, it is: $A9 $0A
     """
 
-    def init_args(self, opcode):
-        args = self.parse_args(opcode)
-        self.get_arg = lambda core: args[1]
+    def init_args(self):
+        args = self.parse_args()
+        self.get_arg = lambda: args[1]
+        # no set_arg function, doesn't make sense for immediate addressing
         
 
 class ZeroPage(BaseMode2):
@@ -54,56 +53,59 @@ class ZeroPage(BaseMode2):
     Zero-page absolute is usually just called zero-page.
     """
     
-    def init_args(self, opcode):
-        args = self.parse_args(opcode)
-        self.get_arg = lambda core: core.memory[args[1]]
+    def init_args(self):
+        args = self.parse_args()
+        self.get_arg = lambda: self.core.memory[args[1]]
 
 
 class ZeroPageX(BaseMode2):
-    def init_args(self, opcode):
-        args = self.parse_args(opcode)
-        self.get_arg = lambda core: core.memory[args[1] + core.x]
+    def init_args(self):
+        args = self.parse_args()
+        self.get_arg = lambda: self.core.memory[args[1] + self.core.x]
 
 
 class ZeroPageY(BaseMode2):
-    def init_args(self, opcode):
-        args = self.parse_args(opcode)
-        self.get_arg = lambda core: core.memory[args[1] + core.y]
+    def init_args(self):
+        args = self.parse_args()
+        self.get_arg = lambda: self.core.memory[args[1] + self.core.y]
 
 
 class Absolute(BaseMode3):
-    def init_args(self, opcode):
-        args = self.parse_args(opcode)
-        self.get_arg = lambda core: core.memory[args[1]]
+    def init_args(self):
+        args = self.parse_args()
+        self.get_arg = lambda: self.core.memory[args[1]]
 
 
 class AbsoluteX(BaseMode3):
-    def init_args(self, opcode):
-        args = self.parse_args(opcode)
-        self.get_arg = lambda core: core.memory[args[1] + core.x]
+    def init_args(self):
+        args = self.parse_args()
+        self.get_arg = lambda: self.core.memory[args[1] + self.core.x]
 
 
 class AbsoluteY(object):
-    def init_args(self, opcode):
-        args = self.parse_args(opcode)
-        self.get_arg = lambda core: core.memory[args[1] + core.y]
+    def init_args(self):
+        args = self.parse_args()
+        self.get_arg = lambda: self.core.memory[args[1] + self.core.y]
 
 
-# TODO: this is the wrong behavior - check it out
 class Indirect(BaseMode3):
-    def init_args(self, opcode):
-        args = self.parse_args(opcode)
-        self.get_arg = lambda core: core.memory[args[1]]
+    def init_args(self):
+        args = self.parse_args()
+        def _get_arg():
+            return struct.unpack('<H', self.core.memory_str[args[1]:args[1]+2])[0]
+        self.get_arg = _get_arg
 
 
-# TODO: check this one out too, probably wrong
 class IndirectX(BaseMode2):
-    def init_args(self, opcode):
-        args = self.parse_args(opcode)
-        self.get_arg = lambda core: core.memory[args[1] + core.x]
+    def init_args(self):
+        args = self.parse_args()
+        def _get_arg():
+            mem_loc = args[1] + self.core.x
+            val = struct.unpack('<H', self.core.memory_str[mem_loc:mem_loc+2])[0]
+            return self.core.memory[val]
+        self.get_arg = _get_arg
 
 
-# TODO: check this too, some funky little-endian junk
 class IndirectY(BaseMode2):
     """In this mode the contents of a zero-page address (and the following byte)
     give the indirect addressm which is added to the contents of the Y-register
@@ -124,15 +126,23 @@ class IndirectY(BaseMode2):
           accumulator.
     Note: only the Y-register is used in this mode.
     """
-    def init_args(self, opcode):
+    def init_args(self):
         args = self.parse_args(opcode)
-        self.get_arg = lambda core: core.memory[core.memory[args[1]] + core.y]
+        def _get_arg():
+            val = struct.unpack('<H', self.core.memory_str[args[1]:args[1]+2])[0]
+            return self.core.memory[val + self.core.y]
+        self.get_arg = _get_arg
 
 
 class Accumulator(BaseMode1):
-    """In this mode the instruction operates on data in the accumulator, so no
-    operands are needed.
+    """In this mode the instruction operates on data in the accumulator. A set_arg
+    function is defined to set the value in the accumulator
     """
+    def init_args(self):
+        self.get_arg = lambda: self.core.acc
+        def _set_arg(self, val):
+            self.core.acc = val
+        self.set_arg = _set_arg
 
 
 class Relative(BaseMode2):
@@ -165,9 +175,9 @@ class Relative(BaseMode2):
     _struct_fmt = '<Bb'
     _struct_len = struct.calcsize(_struct_fmt)
 
-    def init_args(self, opcode):
+    def init_args(self):
         args = self.parse_args(opcode)
-        self.get_arg = lambda core: args[0]
+        self.get_arg = lambda: args[0]
 
 
 class Implied(BaseMode1):
