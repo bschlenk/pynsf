@@ -35,6 +35,12 @@ class Immediate(BaseMode2):
         args = self.parse_args()
         self.get_arg = lambda: args[1]
         # no set_arg function, doesn't make sense for immediate addressing
+
+    def addressmode(self):
+        return "{inst} #${arg:02X}"
+
+    def addressmode_info(self):
+        return "immediate argument"
         
 
 class ZeroPage(BaseMode2):
@@ -57,17 +63,35 @@ class ZeroPage(BaseMode2):
         args = self.parse_args()
         self.get_arg = lambda: self.core.memory[args[1]]
 
+    def addressmode(self):
+        return "{ints} ${arg:02X}"
+
+    def addressmode_info(self):
+        return "zeropage absolute address ${0:02X}".format(self.parse_args()[1])
+
 
 class ZeroPageX(BaseMode2):
     def init_args(self):
         args = self.parse_args()
         self.get_arg = lambda: self.core.memory[args[1] + self.core.x]
 
+    def addressmode(self):
+        return "{inst} ${arg:02X}, X"
+    
+    def addressmode_info(self):
+        return "zeropage indexed address ${0:02X} + X(${1:02X})".format(self.parse_args()[1], self.core.x)
+
 
 class ZeroPageY(BaseMode2):
     def init_args(self):
         args = self.parse_args()
         self.get_arg = lambda: self.core.memory[args[1] + self.core.y]
+    
+    def addressmode(self):
+        return "{inst} ${arg:02X}, Y"
+
+    def addressmode_info(self):
+        return "zeropage indexed address ${0:02X} + Y(${1:02X})".format(self.parse_args()[1], self.core.y)
 
 
 class Absolute(BaseMode3):
@@ -75,17 +99,36 @@ class Absolute(BaseMode3):
         args = self.parse_args()
         self.get_arg = lambda: self.core.memory[args[1]]
 
+    def addressmode(self):
+        return "{inst} ${arg:04X}"
+
+    def addressmode_info(self):
+        return "absolute address ${0:02X}".format(self.parse_args()[1])
+
 
 class AbsoluteX(BaseMode3):
     def init_args(self):
         args = self.parse_args()
         self.get_arg = lambda: self.core.memory[args[1] + self.core.x]
 
+    def addressmode(self):
+        return "{inst} ${arg:04X}, X"
 
+    def addressmode_info(self):
+        return "absolute indexed address ${0:04X} + X(${1:02X})".format(self.parse_args()[1], self.core.x)
+
+
+#TODO: should this have a different base class?
 class AbsoluteY(object):
     def init_args(self):
         args = self.parse_args()
         self.get_arg = lambda: self.core.memory[args[1] + self.core.y]
+
+    def addressmode(self):
+        return "{inst} ${arg:04X}, Y"
+
+    def addressmode_info(self):
+        return "absolute indexed address ${0:04X} + Y(${1:02X})".format(self.parse_args()[1], self.core.y)
 
 
 class Indirect(BaseMode3):
@@ -94,6 +137,12 @@ class Indirect(BaseMode3):
         def _get_arg():
             return struct.unpack('<H', self.core.memory_str[args[1]:args[1]+2])[0]
         self.get_arg = _get_arg
+
+    def addressmode(self):
+        return "{inst} (${arg:04X})"
+
+    def addressmode_info(self):
+        return "indirect, value from address ${0:04X}".format(self.parse_args()[1])
 
 
 class IndirectX(BaseMode2):
@@ -104,6 +153,12 @@ class IndirectX(BaseMode2):
             val = struct.unpack('<H', self.core.memory_str[mem_loc:mem_loc+2])[0]
             return self.core.memory[val]
         self.get_arg = _get_arg
+
+    def addressmode(self):
+        return "{inst} (${arg:02X}, X)"
+
+    def addressmode_info(self):
+        return "indirect, pre-indexed, value of memory address (${0:02X} + X(${1:02X}))".format(self.parse_args()[1], self.core.x)
 
 
 class IndirectY(BaseMode2):
@@ -133,6 +188,12 @@ class IndirectY(BaseMode2):
             return self.core.memory[val + self.core.y]
         self.get_arg = _get_arg
 
+    def addressmode(self):
+        return "{inst} (${arg:02X}), Y"
+
+    def addressmode_info(self):
+        return "indirect, post-indexed, value of memory address (contents of ${0:02X} + Y(${1:02X}))".format(self.parse_args()[1], self.core.y)
+
 
 class Accumulator(BaseMode1):
     """In this mode the instruction operates on data in the accumulator. A set_arg
@@ -143,6 +204,12 @@ class Accumulator(BaseMode1):
         def _set_arg(self, val):
             self.core.acc = val
         self.set_arg = _set_arg
+    
+    def addressmode(self):
+        return "{inst}"
+
+    def addressmode_info(self):
+        return "value of the accumulator"
 
 
 class Relative(BaseMode2):
@@ -176,8 +243,14 @@ class Relative(BaseMode2):
     _struct_len = struct.calcsize(_struct_fmt)
 
     def init_args(self):
-        args = self.parse_args(opcode)
-        self.get_arg = lambda: args[0]
+        args = self.parse_args()
+        self.get_arg = lambda: (args[1] & 0xEF) * (-1 * (args[1] >> 7 & 0x01))
+
+    def adressmode(self):
+        return "{inst} ${arg:02X}"
+
+    def addressmode_info(self):
+        return "relative, from address ${0:02X}".format(self.parse_args())
 
 
 class Implied(BaseMode1):
@@ -185,3 +258,8 @@ class Implied(BaseMode1):
     instruction.
     """
 
+    def addressmode(self):
+        return "{inst}"
+
+    def addressmode_info(self):
+        return "implied"

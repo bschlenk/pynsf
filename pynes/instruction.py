@@ -12,21 +12,22 @@ class Instruction(object):
         except AttributeError:
             pass
 
-
     def get_arg(self):
         """gets overwritten by an addressmode mixin
         will return an argument as a function of the core
         state and the addressmode of the operation"""
-
 
     def set_arg(self, val):
         """gets overwritten by an addressmode mixin
         will set a value in memory as a function of the core state
         and the addressmode of the operation"""
 
-
     def __call__(self):
         """implemented by derived classes"""
+
+    def description(self):
+        """return a debug string describing this instruction"""
+        return "no description"
 
 
 class Branch(object):
@@ -35,31 +36,48 @@ class Branch(object):
 
 class ADC(Instruction):
     """Add Memory to Accumulator with Carry"""
+    instruction_name = "ADC"
+
     def __call__(self):
         core = self.core
         arg = self.get_arg()
         core.acc = core.add(arg)
 
+    def description(self):
+        return "add {0} ({1}) to accumulator {2}".format(self.get_arg(), self.addressmode_info(), self.core.acc)
+
 
 class AND(Instruction):
-    """"AND" Memory with Accumulator"""
+    """AND Memory with Accumulator"""
+    instruction_name = "AND"
+
     def __call__(self):
         core = self.core
         arg = self.get_arg()
         core.acc &= arg
 
+    def description(self):
+        return "AND {0} ({1}) with accumulator {2}".format(self.get_arg(), self.addressmode_info(), self.core.acc)
+
 
 class ASL(Instruction):
     """Shift Left One Bit (Memory or Accumulator)"""
+    instruction_name = "ASL"
+
     def __call__(self):
         core = self.core
         val = self.get_arg()
         core.status.c = bool(val >> 7 & 0x01)
         self.set_arg(core, val << 1)
 
+    def description(self):
+        return "Shift left one bit {0} ({1})".format(self.get_arg(), self.addressmode_info(), self.core.acc)
+
 
 class BCC(Instruction, Branch):
     """Branch on Carry Clear"""
+    instruction_name = "BCC"
+
     def __call__(self):
         core = self.core
         if not core.status.c:
@@ -67,9 +85,14 @@ class BCC(Instruction, Branch):
         else:
             core.pc += self.num_bytes
 
+    def description(self):
+        return "Branch to {0} ({1}) on Carry Clear (carry = {2})".format(self.get_arg(), self.addressmode_info(), self.core.status.c)
+
 
 class BCS(Instruction, Branch):
     """Branch on Carry Set"""
+    instruction_name = "BCS"
+
     def __call__(self):
         core = self.core
         if core.status.c:
@@ -77,9 +100,14 @@ class BCS(Instruction, Branch):
         else:
             core.pc += self.num_bytes
 
+    def description(self):
+        return "Branch to {0} ({1}) on Carry Set (carry = {2})".format(self.get_arg(), self.addressmode_info(), self.core.status.c)
+
 
 class BEQ(Instruction, Branch):
     """Branch on Result Zero"""
+    instruction_name = "BEQ"
+
     def __call__(self):
         core = self.core
         if core.status.z:
@@ -87,9 +115,14 @@ class BEQ(Instruction, Branch):
         else:
             core.pc += self.num_bytes
 
+    def description(self):
+        return "Branch to {0} ({1}) on Result Zero (resultzero = {2})".format(self.get_arg(), self.addressmode_info(), self.core.status.z)
+
 
 class BIT(Instruction):
     """Test Bits in Memory with Accumulator"""
+    instruction_name = "BIT"
+
     def __call__(self):
         core = self.core
         val = core.acc & self.get_arg()
@@ -97,40 +130,63 @@ class BIT(Instruction):
         core.status.v = bool(val >> 6 & 0x01)
         core.status.s = bool(val >> 7 & 0x01)
 
+    def description(self):
+        return "AND accumulator with {0} ({1}), set zerobit, overflow, sign".format(self.get_arg(), self.addressmode_info())
+
 
 class BMI(Instruction, Branch):
     """Branch on Result Minus"""
+    instruction_name = "BMI"
+
     def __call__(self):
         if self.core.s:
             self.core.pc = self.get_arg()
         else:
             self.core.pc += self.num_bytes
 
+    def description(self):
+        return "Branch to {0} ({1}) on Result Minux (resultminus = {2})".format(self.get_arg(), self.addressmode_info(), self.core.status.s)
+
 
 class BNE(Instruction, Branch):
     """Branch on Result not Zero"""
+    instruction_name = "BNE"
+
     def __call__(self):
         if not self.core.z:
             self.core.pc = self.get_arg()
         else:
             self.core.pc += self.num_bytes
 
+    def description(self):
+        return "Branch to {0} ({1}) on Result Not Zero (resultzero = {2})".format(self.get_arg(), self.addressmode_info(), self.core.status.z)
+
 
 class BPL(Instruction, Branch):
     """Branch on Result Plus"""
+    instruction_name = "BPL"
+
     def __call__(self):
-        if self.core.z:
+        if not self.core.s:
             self.core.pc = self.get_arg()
         else:
             self.core.pc += self.num_bytes
 
+    def description(self):
+        return "Branch to {0} ({1}) on Result Positive (resultsign = {2})".format(self.get_arg(), self.addressmode_info(), self.core.status.s)
+
 
 class BRK(Instruction):
     """Force Break"""
+    instruction_name = "BRK"
+
     def __call__(self):
         self.core.stack.push(core)
         self.core.stack.push(core)
         self.core.status.i = True
+
+    def description(self):
+        return "Force Break"
     
 
 class BVC(Instruction, Branch):
@@ -217,7 +273,7 @@ class DEY(Instruction):
 
 
 class EOR(Instruction):
-    """"Exclusive-Or" Memory with Accumulator"""
+    """Exclusive-Or Memory with Accumulator"""
     def __call__(self):
         core.acc = self.get_arg() ^ core.acc
     
@@ -322,20 +378,19 @@ class PLP(Instruction):
 
 
 class ROL(Instruction):
-    """ROL Rotate one bit left (memory )"""
+    """ROL Rotate one bit left (memory)"""
     def __call__(self):
-        def __call__(self):
-            val = self.get_arg()
-            c = val >> 7 & 0x01
-            val <<= 1
-            val |= int(self.core.status.c)
-            self.set_arg(self.core, val)
-            self.core.status.c = bool(c)
-            self.core.set_zero_neg(val)
+        val = self.get_arg()
+        c = val >> 7 & 0x01
+        val <<= 1
+        val |= int(self.core.status.c)
+        self.set_arg(self.core, val)
+        self.core.status.c = bool(c)
+        self.core.set_zero_neg(val)
 
 
 class ROR(Instruction):
-    """ROR Rotate one bit right (memory )"""
+    """ROR Rotate one bit right (memory)"""
     def __call__(self):
         val = self.get_arg()
         c = val & 0x01

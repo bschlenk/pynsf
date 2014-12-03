@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-import sys, os
 import struct
 
 
@@ -33,7 +32,7 @@ class NSFFile(object):
             with open(nsf_file) as f:
                 data = f.read()
         except IOError as e:
-            raise NSFFile('failed to read %s (%s)' % (nsf_file, str(e)))
+            raise NSFFileError('failed to read %s (%s)' % (nsf_file, str(e)))
         
         info = struct.unpack(self._struct_format, data[:self._struct_len])
         if info[0] != self._nsf_magic:
@@ -93,11 +92,12 @@ class NSFFile(object):
         print 'ntsc/pal bits: %s' % bin(ord(self.ntsc_pal_bits)).ljust(8, '0')
         print 'snd chip bits: %s' % bin(ord(self.sound_chip_bits)).ljust(8, '0')
         print 'tune type:     %s' % self.tune_type
-        print 'extra chips:   %s' % ', '.join(self.extra_sound_chips)
+        print 'extra chips:   %s' % (', '.join(self.extra_sound_chips) if self.extra_sound_chips else 'none')
 
         
         
 if __name__ == '__main__':
+    import sys
     nsffile = NSFFile(sys.argv[1])
     nsffile.print_info()
 

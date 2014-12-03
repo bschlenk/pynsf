@@ -27,52 +27,44 @@ class Core6502(object):
         self.memory_str = data
         self.memory = [ord(d) for d in data]
 
-
     def run(self):
         while True:
             inst = instruction_map[self.memory[self.pc]](self)
+            print inst.description()
             inst()
             if not inst.is_branch:
                 self.pc += inst.num_bytes
 
-
     @property
     def acc(self):
         return self._acc
-
 
     @acc.setter
     def acc(self, value):
         self._acc = value
         self.update_zero_neg(value)
 
-
     @property
     def x(self):
         return self._x
-
 
     @x.setter
     def x(self, value):
         self._x = value
         self.update_zero_neg(value)
 
-
     @property
     def y(self):
         return self._y
-
 
     @y.setter
     def y(self, value):
         self._y = value
         self.update_zero_neg(value)
-
     
     def update_zero_neg(self, value):
         self.status.z = not value
         self.status.n = bool((value >> 6) & 0x01)
-
 
     def add(self, arg1, arg2, update_overflow=True):
         val = arg1 + arg2 + int(self.status.c)
@@ -85,7 +77,6 @@ class Core6502(object):
             self.status.c = False
         return val
 
-
     def sub(self, arg1, arg2, update_overflow=True):
         val = arg1 - arg2 - int(not self.status.c)
         if update_overflow:
@@ -96,7 +87,6 @@ class Core6502(object):
         else:
             self.status.c = True
         return val
-
     
     def set_status_from_value(self, valNew, valOrig, update_overflow=True):
         max_num = 0xFF
