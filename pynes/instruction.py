@@ -1,6 +1,6 @@
 import struct
 
-class Instruction(object):
+class Instruction():
     """Base class for all 6502 instructions"""
     def __init__(self, core):
         if not hasattr(self, 'is_branch'):
@@ -30,7 +30,7 @@ class Instruction(object):
         return "no description"
 
 
-class Branch(object):
+class Branch():
     is_branch = True
     
 

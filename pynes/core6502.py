@@ -6,7 +6,7 @@ from pynes.stack import Stack
 from pynes.instructions import instruction_map
 
 
-class Core6502(object):
+class Core6502():
     
     def __init__(self):
         self._acc = 0;
@@ -18,19 +18,18 @@ class Core6502(object):
         self.memory = []
 
     def load(self, nes_file):
-        with open(nes_file) as f:
+        with open(nes_file, 'rb') as f:
             data = f.read()
         
-        # the first 16 bytes are the NES file header - ignore it for now
-        data = data[16:]
+        # reset the core when loading
         self.__init__()
-        self.memory_str = data
-        self.memory = [ord(d) for d in data]
+        # the first 16 bytes are the NES file header - ignore it for now
+        self.memory = data[16:]
 
     def run(self):
         while True:
             inst = instruction_map[self.memory[self.pc]](self)
-            print inst.description()
+            print(inst.description())
             inst()
             if not inst.is_branch:
                 self.pc += inst.num_bytes

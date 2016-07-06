@@ -1,11 +1,11 @@
 import struct
 
-class BaseMode1(object):
+class BaseMode1():
     """these routines don't take any arguments"""
     num_bytes = 1
 
 
-class BaseMode2(object):
+class BaseMode2():
     """contains routines to parse 2 byte opcodes"""
     _struct_fmt = '<BB'
     _struct_len = struct.calcsize(_struct_fmt)
@@ -119,7 +119,7 @@ class AbsoluteX(BaseMode3):
 
 
 #TODO: should this have a different base class?
-class AbsoluteY(object):
+class AbsoluteY():
     def init_args(self):
         args = self.parse_args()
         self.get_arg = lambda: self.core.memory[args[1] + self.core.y]

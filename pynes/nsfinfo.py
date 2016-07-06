@@ -6,7 +6,7 @@ class NSFFileError(Exception):
     """geric NSFFile exception"""
 
 
-class NSFFile(object):
+class NSFFile():
     TYPE_NTSC = 'ntsc'
     TYPE_PAL = 'pal'
     TYPE_BOTH = 'both'
@@ -78,21 +78,21 @@ class NSFFile(object):
 
 
     def print_info(self):
-        print 'song name:     %s' % self.song_name
-        print 'song artist:   %s' % self.artist_name
-        print 'copyright:     %s' % self.copyright
-        print 'total songs:   %d' % self.total_songs
-        print 'starting song: %d' % self.starting_song
-        print 'load address:  %d' % self.load_address
-        print 'init address:  %d' % self.init_address
-        print 'play address:  %d' % self.play_address
-        print 'ntsc speed:    %d' % self.ntsc_speed
-        print 'pal speed:     %d' % self.pal_speed
-        print 'bankswitch:    0x%s' % self.bankswitch.encode('hex')
-        print 'ntsc/pal bits: %s' % bin(ord(self.ntsc_pal_bits)).ljust(8, '0')
-        print 'snd chip bits: %s' % bin(ord(self.sound_chip_bits)).ljust(8, '0')
-        print 'tune type:     %s' % self.tune_type
-        print 'extra chips:   %s' % (', '.join(self.extra_sound_chips) if self.extra_sound_chips else 'none')
+        print('song name:     %s' % self.song_name)
+        print('song artist:   %s' % self.artist_name)
+        print('copyright:     %s' % self.copyright)
+        print('total songs:   %d' % self.total_songs)
+        print('starting song: %d' % self.starting_song)
+        print('load address:  %d' % self.load_address)
+        print('init address:  %d' % self.init_address)
+        print('play address:  %d' % self.play_address)
+        print('ntsc speed:    %d' % self.ntsc_speed)
+        print('pal speed:     %d' % self.pal_speed)
+        print('bankswitch:    0x%s' % self.bankswitch.encode('hex'))
+        print('ntsc/pal bits: %s' % bin(ord(self.ntsc_pal_bits)).ljust(8, '0'))
+        print('snd chip bits: %s' % bin(ord(self.sound_chip_bits)).ljust(8, '0'))
+        print('tune type:     %s' % self.tune_type)
+        print('extra chips:   %s' % (', '.join(self.extra_sound_chips) if self.extra_sound_chips else 'none'))
 
         
         

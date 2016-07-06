@@ -6,17 +6,15 @@ class Stack(list):
         self.stack_size = size
         self.sp = 0
 
-
     def push(self, item):
         self[self.sp] = item
         self.sp += 1
-
 
     def pop(self):
         val = self[self.sp]
         self.sp -= 1
         return val
 
-
     def isEmpty(self):
         return not self
+

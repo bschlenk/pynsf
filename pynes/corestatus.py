@@ -1,4 +1,4 @@
-class CoreStatus(object):
+class CoreStatus():
     """The status register flags"""
 
     def __init__(self):
