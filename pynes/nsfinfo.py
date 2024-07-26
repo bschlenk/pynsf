@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# -*- coding: utf8 -*-
+
 import struct
 
 
@@ -24,16 +26,16 @@ class NSFFile():
 
     _struct_format = '<5scccHHH32s32s32sH8sHcc4s'
     _struct_len = struct.calcsize(_struct_format)
-    _nsf_magic = 'NESM\x1A'
+    _nsf_magic = b'NESM\x1A'
 
     def __init__(self, nsf_file):
         self.file_name = nsf_file
         try:
-            with open(nsf_file) as f:
+            with open(nsf_file, "rb") as f:
                 data = f.read()
         except IOError as e:
             raise NSFFileError('failed to read %s (%s)' % (nsf_file, str(e)))
-        
+
         info = struct.unpack(self._struct_format, data[:self._struct_len])
         if info[0] != self._nsf_magic:
             raise NSFFileError('%s is not a valid NSF file' % nsf_file)
@@ -46,7 +48,7 @@ class NSFFile():
         self.play_address = info[6]
 
         def from_c_str(in_str):
-            loc = in_str.find('\x00')
+            loc = in_str.find(b'\x00')
             if loc == -1:
                 return in_str
             return in_str[:loc]
@@ -78,26 +80,25 @@ class NSFFile():
 
 
     def print_info(self):
-        print('song name:     %s' % self.song_name)
-        print('song artist:   %s' % self.artist_name)
-        print('copyright:     %s' % self.copyright)
-        print('total songs:   %d' % self.total_songs)
-        print('starting song: %d' % self.starting_song)
-        print('load address:  %d' % self.load_address)
-        print('init address:  %d' % self.init_address)
-        print('play address:  %d' % self.play_address)
-        print('ntsc speed:    %d' % self.ntsc_speed)
-        print('pal speed:     %d' % self.pal_speed)
-        print('bankswitch:    0x%s' % self.bankswitch.encode('hex'))
-        print('ntsc/pal bits: %s' % bin(ord(self.ntsc_pal_bits)).ljust(8, '0'))
-        print('snd chip bits: %s' % bin(ord(self.sound_chip_bits)).ljust(8, '0'))
-        print('tune type:     %s' % self.tune_type)
-        print('extra chips:   %s' % (', '.join(self.extra_sound_chips) if self.extra_sound_chips else 'none'))
+         print('song name:     %s' % self.song_name.decode())
+         print('song artist:   %s' % self.artist_name.decode())
+         print('copyright:     %s' % self.copyright.decode())
+         print('total songs:   %d' % self.total_songs)
+         print('starting song: %d' % self.starting_song)
+         print('load address:  0x%08x' % self.load_address)
+         print('init address:  0x%08x' % self.init_address)
+         print('play address:  0x%08x' % self.play_address)
+         print('ntsc speed:    %d' % self.ntsc_speed)
+         print('pal speed:     %d' % self.pal_speed)
+         print('bankswitch:    0x%s' % self.bankswitch.hex())
+         print('ntsc/pal bits: %s' % bin(ord(self.ntsc_pal_bits)).ljust(8, '0'))
+         print('snd chip bits: %s' % bin(ord(self.sound_chip_bits)).ljust(8, '0'))
+         print('tune type:     %s' % self.tune_type)
+         print('extra chips:   %s' % (', '.join(self.extra_sound_chips) if self.extra_sound_chips else 'none'))
 
-        
-        
+
+
 if __name__ == '__main__':
     import sys
     nsffile = NSFFile(sys.argv[1])
     nsffile.print_info()
-

@@ -1,3 +1,5 @@
+# -*- coding: utf8 -*-
+
 import struct
 
 class BaseMode1():
@@ -41,7 +43,7 @@ class Immediate(BaseMode2):
 
     def addressmode_info(self):
         return "immediate argument"
-        
+
 
 class ZeroPage(BaseMode2):
     """Absolute and Zero-page Absolute
@@ -58,7 +60,7 @@ class ZeroPage(BaseMode2):
     LDA $31F6 is stored as three bytes in memory, $AD $F6 $31.
     Zero-page absolute is usually just called zero-page.
     """
-    
+
     def init_args(self):
         args = self.parse_args()
         self.get_arg = lambda: self.core.memory[args[1]]
@@ -77,7 +79,7 @@ class ZeroPageX(BaseMode2):
 
     def addressmode(self):
         return "{inst} ${arg:02X}, X"
-    
+
     def addressmode_info(self):
         return "zeropage indexed address ${0:02X} + X(${1:02X})".format(self.parse_args()[1], self.core.x)
 
@@ -86,7 +88,7 @@ class ZeroPageY(BaseMode2):
     def init_args(self):
         args = self.parse_args()
         self.get_arg = lambda: self.core.memory[args[1] + self.core.y]
-    
+
     def addressmode(self):
         return "{inst} ${arg:02X}, Y"
 
@@ -204,7 +206,7 @@ class Accumulator(BaseMode1):
         def _set_arg(self, val):
             self.core.acc = val
         self.set_arg = _set_arg
-    
+
     def addressmode(self):
         return "{inst}"
 

@@ -1,3 +1,5 @@
+# -*- coding: utf8 -*-
+
 class Stack(list):
     """A fixed size stack"""
     def __init__(self, size=128):
@@ -17,4 +19,3 @@ class Stack(list):
 
     def isEmpty(self):
         return not self
-

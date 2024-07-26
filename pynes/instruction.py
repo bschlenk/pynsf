@@ -1,3 +1,5 @@
+# -*- coding: utf8 -*-
+
 import struct
 
 class Instruction():
@@ -32,7 +34,7 @@ class Instruction():
 
 class Branch():
     is_branch = True
-    
+
 
 class ADC(Instruction):
     """Add Memory to Accumulator with Carry"""
@@ -187,7 +189,7 @@ class BRK(Instruction):
 
     def description(self):
         return "Force Break"
-    
+
 
 class BVC(Instruction, Branch):
     """Branch on Overflow Clear"""
@@ -276,7 +278,7 @@ class EOR(Instruction):
     """Exclusive-Or Memory with Accumulator"""
     def __call__(self):
         core.acc = self.get_arg() ^ core.acc
-    
+
 
 class INC(Instruction):
     """Increment Memory by One"""
@@ -305,7 +307,7 @@ class JMP(Instruction, Branch):
         self.core.pc = self.get_arg()
 
 
-class JSR(Instruction, Branch):          
+class JSR(Instruction, Branch):
     """JSR Jump to new location saving return address"""
     def __call__(self):
         sef.core.stack.push(self.core + 2)
@@ -323,7 +325,7 @@ class LDX(Instruction):
     def __call__(self):
         self.core.x = self.get_arg()
 
-            
+
 class LDY(Instruction):
     """LDY Load index Y with memory"""
     def __call__(self):
@@ -370,7 +372,7 @@ class PLA(Instruction):
         # we don't want to affect the status registers
         self.core._acc = self.core.stack.pop()
 
-                        
+
 class PLP(Instruction):
     """PLP Pull processor status from stack"""
     def __call__(self):
@@ -442,7 +444,7 @@ class STA(Instruction):
     """STA Store accumulator in memory"""
     def __call__(self):
         self.set_arg(self.core, self.core.acc)
-                                            
+
 
 class STX(Instruction):
     """STX Store index X in memory"""
@@ -454,8 +456,8 @@ class STY(Instruction):
     """STY Store index Y in memory"""
     def __call__(self):
         self.set_arg(self.core, self.core.y)
-                                                    
-                                                    
+
+
 class TAX(Instruction):
     """TAX Transfer accumulator to index X"""
     def __call__(self):
@@ -490,4 +492,3 @@ class TYA(Instruction):
     """TYA Transfer index Y to accumulator"""
     def __call__(self):
         self.core.acc = self.core.y
-

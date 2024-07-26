@@ -1,6 +1,13 @@
 #!/usr/bin/env python
-from pynes.instruction import *
-from pynes.addressmode import *
+# -*- coding: utf8 -*-
+
+try:
+	from pynes.instruction import *
+	from pynes.addressmode import *
+except ImportError:
+	from instruction import *
+	from addressmode import *
+
 
 def create_instruction(func, mode):
     """creates a dynamic type using "func" and "mode" as base classes"""
@@ -33,7 +40,7 @@ instruction_map = {
     0x16: create_instruction(ASL, ZeroPageX),
     0x0E: create_instruction(ASL, Absolute),
     0x1E: create_instruction(ASL, AbsoluteX),
-    
+
     # BCC instructions
     0x90: create_instruction(BCC, Relative),
 
@@ -130,7 +137,7 @@ instruction_map = {
 
     # INY instructions
     0xC8: create_instruction(INY, Implied),
-    
+
     # JMP instructions
     0x4C: create_instruction(JMP, Absolute),
     0x6C: create_instruction(JMP, Indirect),
@@ -168,11 +175,11 @@ instruction_map = {
     0x56: create_instruction(LSR, ZeroPageX),
     0x4E: create_instruction(LSR, Absolute),
     0x5E: create_instruction(LSR, AbsoluteX),
-    
-    
+
+
     # NOP instructions
     0xEA: create_instruction(NOP, Implied),
-    
+
     # ORA instructions
     0x09: create_instruction(ORA, Immediate),
     0x05: create_instruction(ORA, ZeroPage),
@@ -182,41 +189,41 @@ instruction_map = {
     0x19: create_instruction(ORA, AbsoluteY),
     0x01: create_instruction(ORA, IndirectX),
     0x11: create_instruction(ORA, IndirectY),
-    
-    
+
+
     # PHA instructions
     0x48: create_instruction(PHA, Implied),
-    
+
     # PHP instructions
     0x08: create_instruction(PHP, Implied),
-    
+
     # PLA instructions
     0x68: create_instruction(PLA, Implied),
-    
+
     # PLP instructions
     0x28: create_instruction(PLP, Implied),
-    
+
     # ROL instructions
     0x2A: create_instruction(ROL, Accumulator),
     0x26: create_instruction(ROL, ZeroPage),
     0x36: create_instruction(ROL, ZeroPageX),
     0x2E: create_instruction(ROL, Absolute),
     0x3E: create_instruction(ROL, AbsoluteX),
-    
-    
+
+
     # ROR instructions
     0x6A: create_instruction(ROR, Accumulator),
     0x66: create_instruction(ROR, ZeroPage),
     0x76: create_instruction(ROR, ZeroPageX),
     0x6E: create_instruction(ROR, Absolute),
     0x7E: create_instruction(ROR, AbsoluteX),
-    
+
     # RTI instructions
     0x4D: create_instruction(RTI, Implied),
-    
+
     # RTS instructions
     0x60: create_instruction(RTS, Implied),
-    
+
     # SBC instructions
     0xE9: create_instruction(SBC, Immediate),
     0xE5: create_instruction(SBC, ZeroPage),
@@ -226,17 +233,17 @@ instruction_map = {
     0xF9: create_instruction(SBC, AbsoluteY),
     0xE1: create_instruction(SBC, IndirectX),
     0xF1: create_instruction(SBC, IndirectY),
-    
-    
+
+
     # SEC instructions
     0x38: create_instruction(SEC, Implied),
-    
+
     # SED instructions
     0xF8: create_instruction(SED, Implied),
-    
+
     # SEI instructions
     0x78: create_instruction(SEI, Implied),
-    
+
     # STA instructions
     0x85: create_instruction(STA, ZeroPage),
     0x95: create_instruction(STA, ZeroPageX),
@@ -245,35 +252,35 @@ instruction_map = {
     0x99: create_instruction(STA, AbsoluteY),
     0x81: create_instruction(STA, IndirectX),
     0x91: create_instruction(STA, IndirectY),
-    
-    
+
+
     # STX instructions
     0x86: create_instruction(STX, ZeroPage),
     0x96: create_instruction(STX, ZeroPageY),
     0x8E: create_instruction(STX, Absolute),
-    
-    
+
+
     # STY instructions
     0x84: create_instruction(STY, ZeroPage),
     0x94: create_instruction(STY, ZeroPageX),
     0x8C: create_instruction(STY, Absolute),
-    
-    
+
+
     # TAX instructions
     0xAA: create_instruction(TAX, Implied),
-    
+
     # TAY instructions
     0xA8: create_instruction(TAY, Implied),
-    
+
     # TSX instructions
     0xBA: create_instruction(TSX, Implied),
-    
+
     # TXA instructions
     0x8A: create_instruction(TXA, Implied),
-    
+
     # TXS instructions
     0x9A: create_instruction(TXS, Implied),
-    
+
     # TYA instructions
     0x98: create_instruction(TYA, Implied),
 }

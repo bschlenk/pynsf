@@ -1,3 +1,5 @@
+# -*- coding: utf8 -*-
+
 class CoreStatus():
     """The status register flags"""
 
@@ -42,4 +44,3 @@ class CoreStatus():
         logical operations.
         """
         self.c = False
-
